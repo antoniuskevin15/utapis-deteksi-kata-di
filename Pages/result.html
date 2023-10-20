@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deteksi Kesalahan Penulisan Kata Di - Hasil</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='app.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+</head>
+<body>
+    {% include 'header.html' %}
+    <div class="container mt-5 mb-5 ">
+        <div class="card card-container">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-3">Paragraf</h5>
+                    <p class="text-justify mt-2" id="paragraph">
+                    </p>
+            </div>
+        </div>
+
+        <div class="card card-container mt-3">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-3">Hasil Deteksi</h5>
+                <p class="text-justify mt-2" id="result">
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <style>
+
+    </style>
+
+    <!-- Include Bootstrap and jQuery scripts -->
+    <!-- Make sure you have Bootstrap and jQuery libraries included before this -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const results = {{ result | tojson }};
+            const paragraphText = {{ paragraph | tojson }};
+
+            const paragraphElement = document.getElementById('paragraph');
+            const resultElement = document.getElementById('result');
+
+            const words = paragraphText.split(/\s+/);
+
+            for (let i = 0; i < words.length; i++) {
+                let word = words[i];
+                let correctWord = words[i];
+                let isCorrect = false;
+
+                if (results[word]) {
+                    isCorrect = results[word].is_correct;
+                } else if (word === 'di' || word === 'Di') {
+                    combinedPhrase = word + ' ' + words[i + 1];
+                    if (results[combinedPhrase]) {
+                        isCorrect = results[combinedPhrase].is_correct;
+                        word = combinedPhrase;
+                        correctWord = combinedPhrase;
+                        i++;
+                    } else {
+                        isCorrect = 'Not found';
+                    }
+                } else {
+                    isCorrect = 'Not found';
+                }
+
+                let paragraph = document.createElement('span');
+                let result = document.createElement('span');
+                
+                if (isCorrect === true) {
+                    paragraph.classList.add('text-dark-blue');
+                    result.classList.add('text-dark-blue');
+                } else if (isCorrect === false) {
+                    paragraph.classList.add('text-red');
+                    paragraph.style.cursor = 'pointer';
+                    result.classList.add('text-green');
+                    
+                    correctWord = results[word].suggestion;
+                } else {
+                    paragraph.classList.add('text-white');
+                    result.classList.add('text-white');
+                }
+                
+                paragraph.textContent = word;
+                result.textContent = correctWord
+
+                if (isCorrect === false) {
+                    paragraph.addEventListener('click', function () {
+                        displaySuggestion(results[word]);
+                    });
+                }
+                
+                paragraphElement.appendChild(paragraph);
+                paragraphElement.appendChild(document.createTextNode(' '));
+                resultElement.appendChild(result);
+                resultElement.appendChild(document.createTextNode(' '));
+            }
+        });
+
+        function displaySuggestion(result) {
+            const suggestionContent = document.getElementById('suggestionContent');
+            suggestionContent.textContent = result.suggestion;
+            $('#suggestionModal').modal('show');
+        }
+    </script>
+
+    <!-- Modal HTML -->
+    <div class="modal fade" id="suggestionModal" tabindex="-1" role="dialog" aria-labelledby="suggestionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered custom-modal" role="document">
+            <div class="modal-content">
+                <div class="modal-header custom-header">
+                    <h5 class="modal-title" id="suggestionModalLabel">Suggestion</h5>
+                    <button type="button" class="btn btn-transparant" data-dismiss="modal" aria-label="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="suggestionContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</body>
+</html>

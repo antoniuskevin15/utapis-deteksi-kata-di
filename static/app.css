@@ -1,0 +1,156 @@
+body {
+    /* background-color: #8FE3CF; */
+    /* background-color: #95D1CC; */
+    background-color: #2B4865;
+}
+
+.navbar {
+    background-color: #002B5B;
+}
+
+.logo {
+    max-width: 28px;
+}
+
+.title-text {
+    font-size: 24px;
+}
+
+.content {
+    max-height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    font-size: 18px;
+    background-color: #5584AC;
+    opacity: 0.85;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 5px 10px 10px 3px rgba(0, 0, 0, 0.3);
+    width: 100%;
+}
+
+.card-container {
+    height: 70%;
+}
+
+.card-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.input-field {
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+.card-body {
+    color: #EEEEEE;
+}
+
+.submit-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    background-color: #002B5B;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: #256D85;
+}
+
+.text-dark-blue {
+    color: #002B5B;
+    font-weight: bold;
+}
+
+.text-black {
+    color: black;
+}
+
+.text-white {
+    color: white;
+}
+
+.text-red {
+    color: #EE99A0;
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.text-green {
+    color: #17D7A0;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.text-justify {
+    text-align: justify;
+}
+
+/* Custom modal styles */
+.custom-modal {
+    max-width: 30vw;
+    max-height: 30vh; /* Set the maximum width of the modal */
+}
+
+.custom-header {
+    background-color: #2B4865; /* Set the header background color */
+    color: white; /* Set the text color */
+}
+
+.modal-header {
+    height: 80px;
+}
+
+.modal-body {
+    height: 80px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+}
+
+#suggestionModal .modal-content {
+    border: none; /* Remove the default border */
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow */
+}
+
+.custom-close-icon {
+    font-size: 24px; /* Adjust the size of the close icon */
+    color: #fff; /* Set the color of the icon */
+    text-decoration: none; /* Remove underline if any */
+}
+
+.btn-transparant {
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    margin-right: 2px;
+}
+
+.btn-transparant:hover {
+    background-color: transparent; /* Change background color on hover */
+    border: 2px solid #5584AC; /* Add border on hover */
+    margin-right: 0px;
+    border-radius: 10px; /* Add border radius on hover */
+}

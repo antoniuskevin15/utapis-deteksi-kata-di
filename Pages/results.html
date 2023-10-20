@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deteksi Kesalahan Penulisan Kata Di - Hasil</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'header.html' %}
+    <div class="container mt-5">
+        <h2>Hasil Deteksi:</h2>
+        <p class="text-justify" id="paragraph">
+            {{ paragraph }}
+        </p>
+    </div>
+
+    <!-- Modal HTML -->
+    <div class="modal fade" id="suggestionModal" tabindex="-1" role="dialog" aria-labelledby="suggestionModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="suggestionModalLabel">Suggestion</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="suggestionContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const results = {{ result | tojson }};
+            const paragraphElement = document.getElementById('paragraph');
+            const paragraphText = paragraphElement.textContent;
+            const words = paragraphText.split(/\s+/);
+            const paragraphs = [];
+
+            for (let i = 0; i < words.length; i++) {
+                let word = words[i];
+                let isCorrect = false;
+
+                // Check if the current word is in the result dictionary
+                if (results[word]) {
+                    isCorrect = results[word].is_correct;
+                } else if (word === 'di') {
+                    combinedPhrase = word + ' ' + words[i + 1];
+                    if (results[combinedPhrase]) {
+                        isCorrect = results[combinedPhrase].is_correct;
+                        word = combinedPhrase;
+                        i++; // Move the index to the end of the combined phrase
+                    } else {
+                        isCorrect = 'Not found';
+                    }
+                } else {
+                    isCorrect = 'Not found';
+                }
+
+                let paragraph = document.createElement('span');
+                paragraph.textContent = word;
+                
+                if (isCorrect === true) {
+                    paragraph.classList.add('text-dark-blue');
+                } else if (isCorrect === false) {
+                    paragraph.classList.add('text-red', 'word-suggestion');
+                    paragraph.setAttribute('data-toggle', 'modal');
+                    paragraph.setAttribute('data-target', '#suggestionModal_' + i);
+
+                    // Add a click event listener to open the modal
+                    paragraph.addEventListener('click', function () {
+                        $('#suggestionModal_' + i).modal('show');
+                    });
+                } else {
+                    paragraph.classList.add('text-black');
+                }
+                
+                paragraphs.push(paragraph);
+            }
+
+            paragraphElement.innerHTML = '';
+            paragraphs.forEach((span, index) => {
+                if (index > 0) {
+                    paragraphElement.appendChild(document.createTextNode(' '));
+                }
+                paragraphElement.appendChild(span);
+            });
+
+            $('[data-toggle="modal"]').click(function () {
+                const modalId = $(this).data('target');
+                $(modalId).modal('show');
+            });
+        });
+    </script>
+
+    <style>
+        .text-dark-blue {
+            color: darkblue;
+            font-weight: bold;
+        }
+        .text-black {
+            color: black;
+        }
+        .text-red {
+            color: red;
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+        .word-suggestion {
+            color: red; /* Change the color of incorrect words to red */
+            text-decoration: underline; /* Underline incorrect words */
+            cursor: pointer; /* Change cursor to a pointer on hover to indicate it's clickable */
+        }
+    </style>
+
+</body>
+</html>
