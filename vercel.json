@@ -1,0 +1,17 @@
+{
+    "version": 2,
+    "builds": [{ "src": "app.py", "use": "@now/python" }],
+    "routes": [
+      { "handle": "filesystem" },
+      {
+        "src": "/detect-di-word",
+        "methods": ["POST"],
+        "dest": "app.py"
+      },
+      {
+        "src": "/.*",
+        "dest": "app.py"
+      }
+    ]
+  }
+  
