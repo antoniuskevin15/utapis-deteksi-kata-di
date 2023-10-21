@@ -8,14 +8,6 @@
     ],
     "routes": [
       {
-        "src": "^/detect-di-word$",
-        "dest": "app.py"
-      },
-      {
-        "src": "^/detect",
-        "dest": "app.py"
-      },
-      {
         "src": "^/(.*)",
         "dest": "app.py"
       }
