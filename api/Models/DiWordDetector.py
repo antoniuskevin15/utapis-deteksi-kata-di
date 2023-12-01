@@ -58,8 +58,8 @@ class DiWordDetector:
             check_word = word
 
         words_pos_in_sentence = {}
-        for word, tag in sentence_pos:
-            words_pos_in_sentence[word] = tag
+        for w, tag in sentence_pos:
+            words_pos_in_sentence[w] = tag
 
         prev_words, next_words = self.check_n_gram(sentence, check_word, n)
 
@@ -74,38 +74,41 @@ class DiWordDetector:
 
         for i in range(len(next_words)):
             if words_pos_in_sentence.get(next_words[i]) is None:
-                next_words[i] = self.lemmatizer.lemmatize(next_words[i])
+                if not self.postagger.get_pos_tag(next_words[i])[0][1].startswith('V'):
+                    next_words[i] = self.lemmatizer.lemmatize(next_words[i])
             if next_words[i] == '':
                 next_words[i] = '"'
 
         for i in range(len(prev_words)):
             if words_pos_in_sentence.get(prev_words[i]) is None:
-                prev_words[i] = self.lemmatizer.lemmatize(prev_words[i])
+                if not self.postagger.get_pos_tag(prev_words[i])[0][1].startswith('V'):
+                    prev_words[i] = self.lemmatizer.lemmatize(prev_words[i])
             if prev_words[i] == '':
                 prev_words[i] = '"'
 
         verb_exist_prev = False
-
         for i in range(len(prev_words)):
+            pos_prev = words_pos_in_sentence[prev_words[i]] if words_pos_in_sentence.get(prev_words[i]) is not None else self.postagger.get_pos_tag(prev_words[i])[0][1]
             if not verb_exist_prev:
-                if words_pos_in_sentence[prev_words[i]].startswith('V'):
+                if pos_prev.startswith('V'):
                     verb_exist_prev = True
                     is_correct = not is_prefix
                 else:
                     is_correct = is_prefix
             elif len(prev_words) > 1:
-                if words_pos_in_sentence[prev_words[i]] == 'CC':
+                if pos_prev == 'CC':
                     is_correct = is_prefix
-                elif words_pos_in_sentence[prev_words[i]].startswith('V'):
+                elif pos_prev.startswith('V'):
                     is_correct = not is_prefix
             else:
                 is_correct = not is_prefix
-
+                
         verb_exist_next = False
 
         for i in range(len(next_words)):
+            pos_next = words_pos_in_sentence[next_words[i]] if words_pos_in_sentence.get(next_words[i]) is not None else self.postagger.get_pos_tag(next_words[i])[0][1]
             if not verb_exist_next:
-                if words_pos_in_sentence[next_words[i]].startswith('V'):
+                if pos_next.startswith('V'):
                     verb_exist_next = True
                     is_correct = not is_prefix
                     if i == 1 and words_pos_in_sentence[next_words[i - 1]] == 'CC':
@@ -113,9 +116,12 @@ class DiWordDetector:
                     else:
                         is_correct = not is_prefix
                 else:
-                    is_correct = is_prefix
+                    if not verb_exist_prev and i == len(next_words) - 1:
+                        is_correct = is_prefix
+                    else:
+                        is_correct = not is_prefix
             else:
-                if words_pos_in_sentence[next_words[i]].startswith('V'):
+                if pos_next.startswith('V'):
                     is_correct = not is_prefix
                 else:
                     is_correct = is_prefix
