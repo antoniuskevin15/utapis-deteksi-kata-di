@@ -1,5 +1,8 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from Models.DiWordDetector import DiWordDetector
+from Models.DetectorModel import DetectorModel
+import warnings
+warnings.filterwarnings("ignore")
 
 app = Flask(__name__, template_folder='Pages')
 
@@ -11,8 +14,10 @@ def index():
 def detect_diword():
     if request.method == 'POST':
         paragraph = request.form.get('paragraph')
-        detector = DiWordDetector()
-        result = detector.detect_di_usage(paragraph)
+        # detector = DiWordDetector()
+        # result = detector.detect_di_usage(paragraph)
+        detector = DetectorModel()
+        result = detector.detect_di_word(paragraph)
         return render_template('result.html', result=result, paragraph=paragraph)
 
 @app.route('/detect-di-word', methods=['POST'])
@@ -24,8 +29,11 @@ def detect_diword_api():
 
             paragraph = data.get('paragraph')
 
-            detector = DiWordDetector()
-            result = detector.detect_di_usage(paragraph)
+            # detector = DiWordDetector()
+            # result = detector.detect_di_usage(paragraph)
+
+            detector = DetectorModel()
+            result = detector.detect_di_word(paragraph)
 
             finalResult = {
                 "result": result,

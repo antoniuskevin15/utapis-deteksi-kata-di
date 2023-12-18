@@ -49,19 +49,38 @@
 
             for (let i = 0; i < words.length; i++) {
                 let word = words[i];
-                let correctWord = words[i];
                 let isCorrect = false;
                 let isPeriod = false;
-
+                let isComa = false;
+                
                 if (word.charAt(word.length - 1) === '.') {
                     word = word.slice(0, -1);
                     isPeriod = true;
                 }
+                
+                if (word.charAt(word.length - 1) === ',') {
+                    word = word.slice(0, -1);
+                    isComa = true;
+                }
+                
+                let correctWord = word;
 
                 if (results[word]) {
                     isCorrect = results[word].is_correct;
                 } else if (word === 'di' || word === 'Di') {
-                    combinedPhrase = word + ' ' + words[i + 1];
+                    followingWord = words[i + 1];
+
+                    if (followingWord.charAt(followingWord.length - 1) === '.') {
+                        followingWord = followingWord.slice(0, -1);
+                        isPeriod = true;
+                    }
+                    
+                    if (followingWord.charAt(followingWord.length - 1) === ',') {
+                        followingWord = followingWord.slice(0, -1);
+                        isComa = true;
+                    }
+                    
+                    combinedPhrase = word + ' ' + followingWord;
                     if (results[combinedPhrase]) {
                         isCorrect = results[combinedPhrase].is_correct;
                         word = combinedPhrase;
@@ -90,17 +109,16 @@
                     paragraph.classList.add('text-white');
                     result.classList.add('text-white');
                 }
-
-                if (isPeriod === true) {
-                    word += '.';
-                }
                 
+                correctWord += isPeriod === true ? '.' : isComa === true ? ',' : '';
+                word += isPeriod === true ? '.' : isComa === true ? ',' : '';
+
                 paragraph.textContent = word;
                 result.textContent = correctWord
-
+                
                 if (isCorrect === false) {
                     paragraph.addEventListener('click', function () {
-                        displaySuggestion(results[word]);
+                        displaySuggestion(correctWord);
                     });
                 }
                 
@@ -113,7 +131,7 @@
 
         function displaySuggestion(result) {
             const suggestionContent = document.getElementById('suggestionContent');
-            suggestionContent.textContent = result.suggestion;
+            suggestionContent.textContent = result;
             $('#suggestionModal').modal('show');
         }
     </script>
