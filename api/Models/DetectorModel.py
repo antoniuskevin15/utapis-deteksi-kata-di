@@ -12,6 +12,7 @@ class DetectorModel:
     def __init__(self):
         self.preProcessingText = PreProcess()
         self.kata_dasar_di = pd.read_csv('./Data/kata_dasar_berawal_di.csv')
+        self.nama_tempat = pd.read_csv('./Data/nama_tempat.csv')
         self.df = pd.read_csv('./Data/dataset_pos_tagged.csv')
         self.model = load_model('./Bot/di_detector_model.h5')
         self.start_pre_processing()
@@ -59,36 +60,46 @@ class DetectorModel:
         result = {}
 
         sentences = nltk.sent_tokenize(paragraph)
+        start_time = time.time()
 
         for sentence in sentences:
             di_words = re.finditer(di_pattern, sentence, re.IGNORECASE)
 
             for di_word in di_words:
                 word = di_word.group()
-                
+                following_word = self.preProcessingText.extract_following_word(word)
+                following_word_pos = self.preProcessingText.get_pos_tag(following_word)
                 suggestion = None
-                label = self.predict_di_word(word)
 
-                if label == 0:
-                    if word.lower() in self.kata_dasar_di['word'].values:
-                        label = 1
+                if word.lower() in self.kata_dasar_di['word'].values or following_word.lower() in self.nama_tempat['word'].values:
+                    label = 1
+                else:
+                    label = self.predict_di_word(word)
+
+                if label == 0:    
+                    if following_word_pos.startswith('F'):
+                        suggestion = f"di-{following_word}"
                     else:
-                        following_word = self.preProcessingText.extract_following_word(word)
-                        following_word_pos = self.preProcessingText.get_pos_tag(following_word)
-                        
-                        if following_word_pos.startswith('F'):
-                            suggestion = f"di-{following_word}"
-                        else:
-                            if re.search(prefix_pattern, word, re.IGNORECASE):
-                                suggestion = f"di {following_word}"
-                            elif re.search(preposition_pattern, word, re.IGNORECASE):
-                                suggestion = f"di{following_word}"
+                        root_word = self.preProcessingText.extract_root_word(following_word)
 
+                        if re.search(prefix_pattern, word, re.IGNORECASE):
+                            label = self.predict_di_word(f"di{root_word}")
+
+                            if label == 0:
+                                suggestion = f"di {following_word}"
+                        elif re.search(preposition_pattern, word, re.IGNORECASE):
+                            label = self.predict_di_word(f"di {root_word}")
+
+                            if label == 0:
+                                suggestion = f"di{following_word}"
 
                 result[word] = {
                     'is_correct': True if label == 1 else False,
                     'suggestion': suggestion
                 }
-        
+
+        end_time = time.time()
+        print(f"Time Elapsed: {end_time - start_time}")
+
         return result
                 
